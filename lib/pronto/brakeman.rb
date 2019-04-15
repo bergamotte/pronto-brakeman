@@ -10,9 +10,12 @@ module Pronto
 
       return [] unless files.any?
 
+      engine_output = `find iso -name app -print0 | xargs -0 -n1 dirname | uniq | paste -sd "," -`
+
       output = ::Brakeman.run(app_path: repo_path,
                               output_formats: [:to_s],
-                              only_files: files)
+                              only_files: files,
+                              engine_paths: engine_output.gsub("\n","").split(','))
       messages_for(ruby_patches, output).compact
     rescue ::Brakeman::NoApplication
       []
